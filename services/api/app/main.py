@@ -16,6 +16,6 @@ def read_root():
     return FileResponse(INDEX_PATH)
 
 
-@app.get("/api/health")
+@app.get("/api/v1/health")
 def health():
     return {"status": "ok"}
