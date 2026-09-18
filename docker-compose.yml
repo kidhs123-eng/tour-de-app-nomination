@@ -1,8 +1,8 @@
 services:
   caddy:
     build:
-      context: .
-      dockerfile: ./caddy/Dockerfile
+      context: ./caddy
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     depends_on:
@@ -10,6 +10,7 @@ services:
 
   api:
     build:
-      dockerfile: ./services/api/Dockerfile
+      context: ./services/api
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
