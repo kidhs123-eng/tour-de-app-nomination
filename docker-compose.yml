@@ -1,0 +1,15 @@
+services:
+  caddy:
+    build:
+      context: .
+      dockerfile: ./caddy/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  api:
+    build:
+      dockerfile: ./services/api/Dockerfile
+    ports:
+      - "8000:8000"
