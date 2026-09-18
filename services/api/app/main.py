@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 
 app = FastAPI(title="Academy API", root_path="/api")
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+@app.get("/")
+def root():
+    return FileResponse("..frontend/index.html")
