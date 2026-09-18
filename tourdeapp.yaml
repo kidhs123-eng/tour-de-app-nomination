@@ -1,0 +1,19 @@
+# $schema: https://tourde.cloud/api/v2/schema
+exposedPort: 80
+
+containers:
+  - name: caddy
+    image: registry.tourde.cloud/tech_titans/caddy
+    port: 80
+
+  - name: api
+    image: registry.tourde.cloud/tech_titans/api
+    port: 8000
+
+build:
+  - name: caddy
+    context: .
+    dockerfile: ./caddy/Dockerfile
+  - name: api
+    context: ./services/api
+    dockerfile: ./services/api/Dockerfile
