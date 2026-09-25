@@ -1,2 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+pydantic-settings
