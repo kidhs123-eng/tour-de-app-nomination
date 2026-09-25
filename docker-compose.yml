@@ -1,16 +1,68 @@
+
 services:
   caddy:
     build:
       context: .
       dockerfile: caddy/Dockerfile
+    restart: always
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - api
+    networks:
+      - app_network
 
   api:
     build:
       context: ./services/api
       dockerfile: Dockerfile
+    restart: always
     ports:
       - "8000:8000"
+    environment:
+      # Пример проброса подключения к БД
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+  db:
+    image: postgres:17-alpine
+    container_name: postgres_17
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_17
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+volumes:
+  pgdata:
+  pgadmin_data:
+
+networks:
+  app_network:
+    driver: bridge

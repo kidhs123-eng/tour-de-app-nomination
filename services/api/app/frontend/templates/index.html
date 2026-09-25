@@ -2,18 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tour de App</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+        main {
+            flex: 1;
+            padding: 2rem;
+        }
+        footer {
+            padding: 1rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        .status-ok { color: #16a34a; font-weight: 600; }
+        .status-err { color: #dc2626; font-weight: 600; }
+    </style>
 </head>
 <body>
-    <div id="status-container">Loading...</div>
+    <main>
+        <h1>Tour de App</h1>
+        <p>System Status: <span id="status-container">Checking...</span></p>
+    </main>
+
+    <footer>
+        <div id="team-signature">Loading authors...</div>
+    </footer>
 
     <script>
-        fetch('/api/v1/health')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('status-container').textContent = data.status;
-            })
-            .catch(err => console.error(err));
+        async function loadAppData() {
+            // Fetch endpoints concurrently without blocking each other on failure
+            const [healthRes, teamRes] = await Promise.allSettled([
+                fetch('/api/v1/health').then(res => res.json()),
+                fetch('/api/team').then(res => res.json())
+            ]);
+
+            const statusEl = document.getElementById('status-container');
+            if (healthRes.status === 'fulfilled' && healthRes.value.status) {
+                statusEl.textContent = healthRes.value.status;
+                statusEl.className = 'status-ok';
+            } else {
+                statusEl.textContent = 'Offline';
+                statusEl.className = 'status-err';
+            }
+
+            const teamEl = document.getElementById('team-signature');
+            if (teamRes.status === 'fulfilled' && teamRes.value.team_name) {
+                const { team_name, members } = teamRes.value;
+                teamEl.textContent = `Made by ${team_name}: ${members.join(', ')}`;
+            } else {
+                teamEl.textContent = 'Author information unavailable';
+            }
+        }
+
+        loadAppData();
     </script>
 </body>
 </html>
